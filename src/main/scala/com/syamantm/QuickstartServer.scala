@@ -11,7 +11,7 @@ import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
 
 //#main-class
-object QuickstartServer extends App with UserRoutes {
+object QuickstartServer extends App with TaskRoutes {
 
   // set up ActorSystem and other dependencies here
   //#main-class
@@ -21,11 +21,11 @@ object QuickstartServer extends App with UserRoutes {
   implicit val executionContext: ExecutionContext = system.dispatcher
   //#server-bootstrapping
 
-  val userRegistryActor: ActorRef = system.actorOf(UserRegistryActor.props, "userRegistryActor")
+  val taskRegistryActor: ActorRef = system.actorOf(TaskRegistryActor.props, "taskRegistryActor")
 
   //#main-class
-  // from the UserRoutes trait
-  lazy val routes: Route = userRoutes
+  // from the TaskRoutes trait
+  lazy val routes: Route = taskRoutes
   //#main-class
 
   //#http-server
