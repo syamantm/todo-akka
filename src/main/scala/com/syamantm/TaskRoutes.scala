@@ -42,12 +42,12 @@ trait TaskRoutes extends TaskJsonSupport {
             get {
               val tasks: Future[Tasks] =
                 (taskRegistryActor ? GetTasks).mapTo[Tasks]
-              complete(tasks)
+              complete((StatusCodes.OK, tasks))
             },
             post {
               entity(as[Task]) { task =>
-                val taskCreated: Future[ActionPerformed] =
-                  (taskRegistryActor ? CreateTask(task)).mapTo[ActionPerformed]
+                val taskCreated: Future[TaskResponse] =
+                  (taskRegistryActor ? CreateTask(task)).mapTo[TaskResponse]
                 onSuccess(taskCreated) { performed =>
                   log.info("Created task [{}]: {}", task.title, performed.description)
                   complete((StatusCodes.Created, performed))
@@ -57,12 +57,12 @@ trait TaskRoutes extends TaskJsonSupport {
         },
         //#users-get-post
         //#users-get-delete
-        path(Segment) { title =>
+        path(Segment) { id =>
           concat(
             get {
               //#retrieve-user-info
-              val maybeTask: Future[Option[Task]] =
-                (taskRegistryActor ? GetTask(title)).mapTo[Option[Task]]
+              val maybeTask: Future[Option[TaskResponse]] =
+                (taskRegistryActor ? GetTask(id.toInt)).mapTo[Option[TaskResponse]]
               rejectEmptyResponse {
                 complete(maybeTask)
               }
@@ -70,11 +70,14 @@ trait TaskRoutes extends TaskJsonSupport {
             },
             delete {
               //#users-delete-logic
-              val taskDeleted: Future[ActionPerformed] =
-                (taskRegistryActor ? DeleteTask(title)).mapTo[ActionPerformed]
-              onSuccess(taskDeleted) { performed =>
-                log.info("Deleted user [{}]: {}", title, performed.description)
-                complete((StatusCodes.OK, performed))
+              val taskDeleted: Future[Option[String]] =
+                (taskRegistryActor ? DeleteTask(id.toInt)).mapTo[Option[String]]
+              onSuccess(taskDeleted) { deleted =>
+                deleted.fold(complete((StatusCodes.NotFound, s"Task with id {$id} not found"))) { msg =>
+                  log.info("Deleted task [{}]: {}", id, msg)
+                  complete((StatusCodes.OK, msg))
+                }
+
               }
               //#users-delete-logic
             })
