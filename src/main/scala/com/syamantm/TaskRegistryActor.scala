@@ -18,7 +18,6 @@ final case class DeleteResponse(deleted: Boolean)
 
 final case class Tasks(tasks: Seq[TaskResponse])
 
-
 object TaskRegistryActor {
 
   final case class ActionPerformed(description: String)
