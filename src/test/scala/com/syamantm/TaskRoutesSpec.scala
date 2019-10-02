@@ -25,10 +25,8 @@ case class TestDatabaseProvider(container: PostgreSQLContainer) extends Database
   }
 }
 
-//#set-up
 class TaskRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
   with TaskRoutes with ForAllTestContainer with BeforeAndAfterEach {
-  //#test-top
 
   override val container = PostgreSQLContainer(username = "postgres", password = "postgres", databaseName = "postgres")
 
@@ -54,9 +52,6 @@ class TaskRoutesSpec extends WordSpec with Matchers with ScalaFutures with Scala
     flyway.dropDatabase()
   }
 
-  //#set-up
-
-  //#actual-test
   "TaskRoutes" should {
     "return no tasks if no present (GET /tasks)" in {
       // note that there's no need for the host part in the uri:
@@ -65,41 +60,32 @@ class TaskRoutesSpec extends WordSpec with Matchers with ScalaFutures with Scala
       request ~> routes ~> check {
         status should ===(StatusCodes.OK)
 
-        // we expect the response to be json:
         contentType should ===(ContentTypes.`application/json`)
 
-        // and no entries should be in the list:
         entityAs[String] should ===("""{"tasks":[]}""")
       }
     }
-    //#actual-test
 
-    //#testing-post
     "be able to add tasks (POST /tasks)" in {
       val task = Task("task1", "my test task")
       val taskEntity = Marshal(task).to[MessageEntity].futureValue // futureValue is from ScalaFutures
 
-      // using the RequestBuilding DSL:
       val request = Post("/tasks").withEntity(taskEntity)
 
       request ~> routes ~> check {
         status should ===(StatusCodes.Created)
 
-        // we expect the response to be json:
         contentType should ===(ContentTypes.`application/json`)
 
-        // and we know what message we're expecting back:
         val responseEntity = entityAs[TaskResponse]
         responseEntity.description should ===("my test task")
       }
     }
-    //#testing-post
 
     "be able to remove tasks (DELETE /tasks)" in {
       val task = Task("task1", "my test task")
       val taskEntity = Marshal(task).to[MessageEntity].futureValue // futureValue is from ScalaFutures
 
-      // using the RequestBuilding DSL:
       val request = Post("/tasks").withEntity(taskEntity)
 
       request ~> routes ~> check {
@@ -113,10 +99,6 @@ class TaskRoutesSpec extends WordSpec with Matchers with ScalaFutures with Scala
         }
       }
     }
-    //#actual-test
   }
-  //#actual-test
 
-  //#set-up
 }
-//#set-up
