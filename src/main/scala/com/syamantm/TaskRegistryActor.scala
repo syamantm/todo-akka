@@ -10,7 +10,6 @@ import com.syamantm.util.DatabaseProvider
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 
-//#task-case-classes
 final case class Task(title: String, description: String)
 
 final case class TaskResponse(id: Int, title: String, description: String)
@@ -18,8 +17,6 @@ final case class TaskResponse(id: Int, title: String, description: String)
 final case class DeleteResponse(deleted: Boolean)
 
 final case class Tasks(tasks: Seq[TaskResponse])
-
-//#task-case-classes
 
 object TaskRegistryActor {
 
@@ -42,7 +39,7 @@ class TaskRegistryActor(val taskService: TaskService) extends Actor with ActorLo
   import akka.pattern.pipe
 
   implicit val timeout: Timeout = 5.seconds
-  implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(10))
+  implicit val ec: ExecutionContext = ExecutionContext.fromExecutor(Executors.newFixedThreadPool(5))
 
   def receive: Receive = {
     case GetTasks =>

@@ -15,9 +15,7 @@ import com.syamantm.TaskRegistryActor._
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-//#user-routes-class
 trait TaskRoutes extends TaskJsonSupport {
-  //#user-routes-class
 
   // we leave these abstract, since they will be provided by the App
   implicit def system: ActorSystem
@@ -30,13 +28,9 @@ trait TaskRoutes extends TaskJsonSupport {
   // Required by the `ask` (?) method below
   implicit lazy val timeout = Timeout(5.seconds) // usually we'd obtain the timeout from the system's configuration
 
-  //#all-routes
-  //#users-get-post
-  //#users-get-delete
   lazy val taskRoutes: Route =
     pathPrefix("tasks") {
       concat(
-        //#users-get-delete
         pathEnd {
           concat(
             get {
@@ -55,21 +49,16 @@ trait TaskRoutes extends TaskJsonSupport {
               }
             })
         },
-        //#users-get-post
-        //#users-get-delete
         path(Segment) { id =>
           concat(
             get {
-              //#retrieve-user-info
               val maybeTask: Future[Option[TaskResponse]] =
                 (taskRegistryActor ? GetTask(id.toInt)).mapTo[Option[TaskResponse]]
               rejectEmptyResponse {
                 complete(maybeTask)
               }
-              //#retrieve-user-info
             },
             delete {
-              //#users-delete-logic
               val taskDeleted: Future[Option[String]] =
                 (taskRegistryActor ? DeleteTask(id.toInt)).mapTo[Option[String]]
               onSuccess(taskDeleted) { deleted =>
@@ -79,10 +68,7 @@ trait TaskRoutes extends TaskJsonSupport {
                 }
 
               }
-              //#users-delete-logic
             })
         })
-      //#users-get-delete
     }
-  //#all-routes
 }

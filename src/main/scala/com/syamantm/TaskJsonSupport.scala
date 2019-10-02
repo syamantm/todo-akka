@@ -2,7 +2,6 @@ package com.syamantm
 
 import com.syamantm.TaskRegistryActor.ActionPerformed
 
-//#json-support
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import spray.json.DefaultJsonProtocol
 
@@ -17,4 +16,3 @@ trait TaskJsonSupport extends SprayJsonSupport {
 
   implicit val actionPerformedJsonFormat = jsonFormat1(ActionPerformed)
 }
-//#json-support
